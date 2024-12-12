@@ -1,0 +1,6 @@
+__pycache__/*
+flask_venv
+Dataset.zip
+uploads
+.idea/
+liveness_model.keras

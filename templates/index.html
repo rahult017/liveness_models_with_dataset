@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload and Train</title>
+</head>
+<body>
+    <h1>Liveness Detection System</h1>
+    <div>
+        <h2>Upload Images and Train Model</h2>
+        <form action="/upload_and_train" method="POST" enctype="multipart/form-data">
+            <input type="file" name="file" accept=".zip,.png,.jpg,.jpeg,.gif,.bmp,.tiff" required>
+            <button type="submit">Upload and Train</button>
+        </form>
+    </div>
+</body>
+</html>
