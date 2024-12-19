@@ -3,16 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload and Train</title>
+    <title>Liveness Detection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        .form-container {
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            max-width: 500px;
+        }
+        .results-table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 80%;
+        }
+        .results-table th, .results-table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        .results-table th {
+            background-color: #f4f4f4;
+        }
+    </style>
 </head>
 <body>
-    <h1>Liveness Detection System</h1>
-    <div>
-        <h2>Upload Images and Train Model</h2>
-        <form action="/upload_and_train" method="POST" enctype="multipart/form-data">
-            <input type="file" name="file" accept=".zip,.png,.jpg,.jpeg,.gif,.bmp,.tiff" required>
-            <button type="submit">Upload and Train</button>
+    <h1>Liveness Detection</h1>
+    <div class="form-container">
+        <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+            <label for="file">Upload a single image or a ZIP file:</label>
+            <br><br>
+            <input type="file" name="file" accept=".png,.jpg,.jpeg,.gif,.bmp,.tiff,.zip" required>
+            <br><br>
+            <button type="submit">Upload and Detect</button>
         </form>
     </div>
+    <div id="results"></div>
+    <script>
+        const form = document.getElementById('uploadForm');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault(); // Prevent default form submission
+            const formData = new FormData(form);
+            
+            // Disable the button to prevent multiple submissions
+            const submitButton = form.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error("Error uploading file");
+                }
+
+                const data = await response.json();
+                displayResults(data.results);
+            } catch (error) {
+                alert("An error occurred while uploading the file: " + error.message);
+            } finally {
+                // Clear the form and re-enable the submit button
+                form.reset();
+                submitButton.disabled = false;
+            }
+        });
+
+        function displayResults(results) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <table class="results-table">
+                    <tr>
+                        <th>#</th>
+                        <th>File Name</th>
+                        <th>Face Detected</th>
+                        <th>Label</th>
+                        <th>Confidence (%)</th>
+                        <th>Accuracy (%)</th>
+                        <th>Loss</th>
+                        <th>Value Accuracy (%)</th>
+                        <th>Value Loss (%)</th>
+                        <th>Learning Rate (%)</th>
+                    </tr>
+                    ${results.map((r, i) => `
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td>${i.file_name}</td>
+                            <td>${r.face_detected}</td>
+                            <td>${r.label}</td>
+                            <td>${r.confidence}</td>
+                            <td>${r.accuracy}</td>
+                            <td>${r.loss}</td>
+                            <td>${r.val_accuracy}</td>
+                            <td>${r.val_loss}</td>
+                            <td>${r.learning_rate}</td>
+                        </tr>`).join('')}
+                </table>`;
+        }
+    </script>
 </body>
 </html>
